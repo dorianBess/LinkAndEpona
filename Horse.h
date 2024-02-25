@@ -20,6 +20,8 @@ private:
     float elapsedTime;
     float frameDuration = 60;
 
+    float maxSpeed = 0.3f;
+
     bool isMount = false;
 
 };

@@ -1,6 +1,7 @@
 #include "Horse.h"
 #include "TextureManager.h"
 #include "Player.h"
+#include <iostream>
 
 Horse::Horse()
 {
@@ -9,7 +10,7 @@ Horse::Horse()
 	collisionBox = sprite.getGlobalBounds();
 	hitBox = sprite.getGlobalBounds();
 	dir = Facing::down;
-	speed = 0.3f;
+	speed = 0;
 }
 
 void Horse::loadSprite()
@@ -35,13 +36,93 @@ void Horse::draw(sf::RenderWindow& window)
 	//window.draw(collisionRect);
 }
 
-void Horse::update(double deltaTime,Map& map)
+void Horse::update(double deltaTime, Map& map)
 {
 	isMoving = false;
 	if (isMount)
 	{
-		sf::Vector2f position = sprite.getPosition();		
+		std::cout << speed << std::endl;
+		sf::Vector2f position = sprite.getPosition();
 		sprite.setRotation(0);
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)
+			|| sf::Keyboard::isKeyPressed(sf::Keyboard::Q)
+			|| sf::Keyboard::isKeyPressed(sf::Keyboard::Z)
+			|| sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{
+			if (speed < maxSpeed)
+			{
+				speed += 0.001f * deltaTime;
+				if (speed > maxSpeed) speed = maxSpeed;
+			}
+
+		}
+		else if (speed > 0)
+		{
+
+			speed -= 0.0005f * deltaTime;
+			if (speed < 0)
+			{
+				speed = 0;
+			}
+			else
+			{
+				float x = 0;
+				float y = 0;
+				switch (dir)
+				{
+				case down:
+					y = 1;
+					break;
+				case right:
+					x = 1;
+					break;
+				case up:
+					y = -1;
+					break;
+				case left:
+					x = -1;
+					break;
+				case downLeft:
+					y = -1;
+					x = -1;
+					break;
+				case downRight:
+					y = -1;
+					x = -1;
+					break;
+				case upLeft:
+					y = 1;
+					x = -1;
+					break;
+				case upRight:
+					y = 1;
+					x = 1;
+					break;
+				default:
+					break;
+				}
+				if (dir == upLeft || dir == upRight || dir == downLeft || dir == downRight)
+				{
+					if (canMoveTo(map, position + sf::Vector2f(x, y) *
+						speed / 2.0f * static_cast<float>(deltaTime)))
+					{
+						sprite.setPosition(position + sf::Vector2f(x, y) * speed / 2.0f * (float)deltaTime);
+						isMoving = true;
+					}
+				}
+				else
+				{
+					if (canMoveTo(map, position + sf::Vector2f(x, y) *
+						speed * static_cast<float>(deltaTime)))
+					{
+						sprite.setPosition(position + sf::Vector2f(x, y) * speed * (float)deltaTime);
+						isMoving = true;
+					}
+				}
+			}
+
+		}
+		std::cout << speed << std::endl;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)
 			&& sf::Keyboard::isKeyPressed(sf::Keyboard::Z)
 			&& canMoveTo(map, position + sf::Vector2f(1, -1) *
